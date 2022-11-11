@@ -4,13 +4,14 @@ const express = require('express');
 const webpush = require('web-push');
 const router = require('./routes')
 const path = require('path');
+const cors = require('cors');
 const app = express();
-const { PORT } = process.env
+const { PORT, PUBLIC_VAPID_KEY, PRIVATE_VAPID_KEY } = process.env
 
-const PUBLIC_VAPID_KEY="BGACNPKpSjqsw4e5-gWcNodhm0Y3cfkTflGe0d3to2PA5dSBGVdL-UNgBBMkzAWA-kC7tgeAHIzUckEYLGun810"
-const PRIVATE_VAPID_KEY="BiZjU4x-HgPQYl_qp6oApzC3PNjZOw6v43dAbCtsTyo"
-
+// middleware
 app.use(bodyParser.json()); 
+app.use(express.json());
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -18,13 +19,7 @@ app.use(express.static(path.join(__dirname, "public")));
 webpush.setVapidDetails("mailto:gricowijaya@gmail.com", PUBLIC_VAPID_KEY, PRIVATE_VAPID_KEY);
 
 // use the router  
-// app.use(router)
-app.post('/subscribe', (req, res) => {
-    const subscription = req.body;
-    res.status(201).json({});
-    const payload = JSON.stringify({ title: "Hello World", body: "This is your first push notification" });
-    webpush.sendNotification(subscription, payload).catch(console.log);
-});
+app.use(router)
 
 // listen to the port express
 app.listen(PORT, () => { console.log(`listen in ${PORT}`); });
